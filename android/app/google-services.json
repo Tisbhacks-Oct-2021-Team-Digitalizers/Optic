@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "869596360135",
+    "project_id": "optic-a0dae",
+    "storage_bucket": "optic-a0dae.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:869596360135:android:aa1e480029be126ac8bde2",
+        "android_client_info": {
+          "package_name": "com.optic.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "869596360135-rvh7ro5l3rj52tjt5pruko46oeb3egv1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.optic.app",
+            "certificate_hash": "0ac01af4abd8f081d62f54d41478665e3b234a61"
+          }
+        },
+        {
+          "client_id": "869596360135-okgfffkf30il5n8g8j70kcm8nbp6ah41.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC9cc5SkovZQKcNSazaDRGH6mAHwaYboXs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "869596360135-okgfffkf30il5n8g8j70kcm8nbp6ah41.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
