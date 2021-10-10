@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:optic/screens/TakePicturePage/takePicturePage.dart';
 import 'package:optic/services/auth.dart';
 import 'package:optic/shared/speechToTextStreamProvider.dart';
 import 'package:optic/shared/userDataStream.dart';
@@ -13,21 +12,16 @@ class LandingPage extends ConsumerWidget {
         if (userData == null) {
           return Container();
         }
-        return watch(speechToTextStreamProvider).when(
-          data: (result) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  CircleAvatar(
-                    backgroundImage: NetworkImage(
-                      userData.photoUrl!,
-                    ),
-                  ),
-                  Text(
-                    userData.displayName ?? '',
-                  ),
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              Row(
+                children: [
                   ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(Colors.red),
+                    ),
                     onPressed: () async {
                       final authService = context.read(authServiceProvider);
                       await authService.signOut();
@@ -36,50 +30,59 @@ class LandingPage extends ConsumerWidget {
                       'Log out',
                     ),
                   ),
-                  ElevatedButton.icon(
-                    onPressed: () async {
-                      Navigator.of(context).push(
-                        TakePicturePage.route(),
-                      );
-                    },
-                    icon: Icon(Icons.camera),
-                    label: Text(
-                      'Take Picture',
-                    ),
-                  ),
-                  ElevatedButton.icon(
-                    onPressed: () async {
-                      context.refresh(speechToTextStreamProvider);
-                    },
-                    icon: Icon(Icons.mic),
-                    label: Text(
-                      'Record',
-                    ),
-                  ),
-                  Text(result?.recognizedWords ?? 'nothing said'),
-                  if (result != null)
-                    Text(
-                      result.hasConfidenceRating
-                          ? result.confidence.toString()
-                          : 'nothing said',
-                    ),
                 ],
               ),
-            );
-          },
-          loading: () {
-            print('log: loading in stream');
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          },
-          error: (error, stackTrace) {
-            return Center(
-              child: Text(
-                'Something went wrong: $error',
+              SizedBox(
+                height: 300,
+                width: 300,
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    context.refresh(speechToTextStreamProvider);
+                  },
+                  icon: Icon(
+                    Icons.mic,
+                    size: 30.0,
+                  ),
+                  label: Text(
+                    'Record',
+                    style: TextStyle(
+                      fontSize: 30.0,
+                    ),
+                  ),
+                ),
               ),
-            );
-          },
+              watch(speechToTextStreamProvider).when(
+                data: (result) {
+                  return Center(
+                    child: Column(
+                      children: [
+                        Text(
+                          result?.recognizedWords ?? 'nothing said',
+                          style: TextStyle(
+                            fontSize: 30.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                loading: () {
+                  print('log: loading in stream');
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                },
+                error: (error, stackTrace) {
+                  return Center(
+                    child: Text(
+                      'Something went wrong: $error',
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
         );
       },
       loading: () {
