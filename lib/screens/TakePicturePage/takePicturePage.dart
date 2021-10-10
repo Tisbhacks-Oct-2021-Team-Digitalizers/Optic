@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:optic/shared/cameraProvider.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:optic/shared/textToSpeechServiceProvider.dart';
 
 final _cameraControllerInitializationFutureProvider =
     FutureProvider.autoDispose(
@@ -28,39 +28,16 @@ final _recognisedTextStateProvider =
   return null;
 });
 
-final _imageLabelsStateProvider =
-    StateProvider.autoDispose<List<ImageLabel>?>((ref) {
-  return null;
-});
-
-enum TtsState { playing, stopped, paused, continued }
+// final _imageLabelsStateProvider =
+//     StateProvider.autoDispose<List<ImageLabel>?>((ref) {
+//   return null;
+// });
 
 class TakePicturePage extends ConsumerWidget {
   TakePicturePage({Key? key}) : super(key: key);
 
   final textDetector = GoogleMlKit.vision.textDetector();
   final imageLabeler = GoogleMlKit.vision.imageLabeler();
-
-  String? language;
-  String? engine;
-  double volume = 0.5;
-  double pitch = 1.0;
-  double rate = 0.5;
-  bool isCurrentLanguageInstalled = false;
-
-  String? _newVoiceText;
-  int? _inputLength;
-
-  TtsState ttsState = TtsState.stopped;
-
-  get isPlaying => ttsState == TtsState.playing;
-  get isStopped => ttsState == TtsState.stopped;
-  get isPaused => ttsState == TtsState.paused;
-  get isContinued => ttsState == TtsState.continued;
-
-  bool get isIOS => !kIsWeb && Platform.isIOS;
-  bool get isAndroid => !kIsWeb && Platform.isAndroid;
-  bool get isWeb => kIsWeb;
 
   static Route route() {
     return MaterialPageRoute(
@@ -79,6 +56,10 @@ class TakePicturePage extends ConsumerWidget {
           floatingActionButton: FloatingActionButton(
             onPressed: () async {
               final image = await controller.takePicture();
+              final tts = context.read(textToSpeechServiceProvider);
+
+              await tts.speak('Reading');
+
               try {
                 final recognisedText = await textDetector.processImage(
                   InputImage.fromFilePath(
@@ -86,25 +67,30 @@ class TakePicturePage extends ConsumerWidget {
                   ),
                 );
 
-                final imageLabels = await imageLabeler.processImage(
-                  InputImage.fromFilePath(
-                    image.path,
-                  ),
-                );
+                // final imageLabels = await imageLabeler.processImage(
+                //   InputImage.fromFilePath(
+                //     image.path,
+                //   ),
+                // );
 
                 context.read(_recognisedTextStateProvider).state =
                     recognisedText;
-                context.read(_imageLabelsStateProvider).state = imageLabels;
+                // context.read(_imageLabelsStateProvider).state = imageLabels;
 
                 print('log: recognising text and labelling image...');
+                await Future.delayed(Duration(seconds: 2));
+                print(recognisedText.text);
+                await tts.speak(recognisedText.text.toLowerCase());
 
-                for (var block in recognisedText.blocks) {
-                  print(block.text);
-                }
+                // for (var block in recognisedText.blocks) {
+                //   print(block.text);
+                //   await tts.speak(block.text.toLowerCase());
+                // }
 
-                for (var imageLabel in imageLabels) {
-                  print(imageLabel.label);
-                }
+                // for (var imageLabel in imageLabels) {
+                //   print(imageLabel.label);
+                // }
+
               } catch (e) {
                 print('log: there was an error');
                 print(e.toString());

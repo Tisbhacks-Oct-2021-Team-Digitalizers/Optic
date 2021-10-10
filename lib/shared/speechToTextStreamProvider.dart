@@ -19,6 +19,8 @@ final speechToTextStreamProvider =
         streamController.add(result);
       },
     );
+  } else {
+    speechToTextService.stop();
   }
 
   ref.onDispose(() {
