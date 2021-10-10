@@ -31,7 +31,6 @@ class AuthService extends ChangeNotifier {
 
     // Once signed in, return the UserCredential
     final result = await FirebaseAuth.instance.signInWithCredential(credential);
-    print('log: OH GEORGE');
     await addUser(result.user!);
     _setLoading(false);
     return result;

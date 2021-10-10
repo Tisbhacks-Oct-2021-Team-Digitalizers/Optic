@@ -1,4 +1,4 @@
-package com.example.flutter_firebase_riverpod_boilerplate
+package com.optic.app
 
 import io.flutter.embedding.android.FlutterActivity
 
