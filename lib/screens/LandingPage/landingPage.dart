@@ -15,7 +15,6 @@ class LandingPage extends ConsumerWidget {
         }
         return watch(speechToTextStreamProvider).when(
           data: (result) {
-            print(result?.recognizedWords);
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -57,6 +56,13 @@ class LandingPage extends ConsumerWidget {
                       'Record',
                     ),
                   ),
+                  Text(result?.recognizedWords ?? 'nothing said'),
+                  if (result != null)
+                    Text(
+                      result.hasConfidenceRating
+                          ? result.confidence.toString()
+                          : 'nothing said',
+                    ),
                 ],
               ),
             );

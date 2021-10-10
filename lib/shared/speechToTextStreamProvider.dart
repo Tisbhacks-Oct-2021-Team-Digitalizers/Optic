@@ -6,25 +6,39 @@ import 'package:speech_to_text/speech_recognition_result.dart';
 
 final speechToTextStreamProvider =
     StreamProvider.autoDispose<SpeechRecognitionResult?>((ref) async* {
-  final speechToTextService =
-      await ref.watch(speechToTextServiceProvider.future);
+  final speechToTextService = ref.watch(speechToTextServiceProvider);
 
   final streamController = StreamController<SpeechRecognitionResult?>();
   streamController.add(null);
 
+  if (!speechToTextService.isAvailable) {
+    print('log: initializing speech to text service');
+    await speechToTextService.initialize(
+      onStatus: (status) {
+        print('log: listening status is: $status');
+      },
+      onError: (val) => print('onError: $val'),
+    );
+  }
+
   if (!speechToTextService.isListening) {
-    speechToTextService.listen(
+    await speechToTextService.listen(
+      onDevice: true,
       onResult: (result) {
         print('log: got speech result');
+        print('the result is: ${result.recognizedWords}');
         streamController.add(result);
       },
     );
   } else {
-    speechToTextService.stop();
+    print('log: stopping listening...');
+    await speechToTextService.stop();
   }
 
-  ref.onDispose(() {
-    speechToTextService.stop();
+  ref.onDispose(() async {
+    if (speechToTextService.isListening) {
+      await speechToTextService.stop();
+    }
     streamController.close();
   });
 

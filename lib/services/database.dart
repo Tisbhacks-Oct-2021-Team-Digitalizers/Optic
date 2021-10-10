@@ -36,7 +36,9 @@ Stream<UserData> userDataStream(String uid) {
 
 List<UserData> _userDataListFromQuerySnapshot(QuerySnapshot qs) {
   return qs.docs.map((ds) {
-    return UserData.fromMap(ds.data());
+    return UserData.fromMap(
+      ds.data()!,
+    );
   }).toList();
 }
 
