@@ -1,9 +1,10 @@
 import 'dart:async';
 
-// import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:optic/main.dart';
 import 'package:optic/screens/TakePicturePage/takePicturePage.dart';
+import 'package:optic/shared/cameraControllerFutureProvider.dart';
 import 'package:optic/shared/speechToTextServiceProvider.dart';
 import 'package:optic/shared/textToSpeechServiceProvider.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
@@ -12,11 +13,15 @@ import 'package:wikidart/wikidart.dart';
 final speechToTextStreamProvider =
     StreamProvider.autoDispose<SpeechRecognitionResult?>((ref) async* {
   final speechToTextService = ref.watch(speechToTextServiceProvider);
+  final tts = ref.watch(textToSpeechServiceProvider);
+  final cameraController =
+      await ref.watch(cameraControllerInitializationFutureProvider.future);
+
+  final textDetector = GoogleMlKit.vision.textDetector();
+  final imageLabeler = GoogleMlKit.vision.imageLabeler();
 
   final streamController = StreamController<SpeechRecognitionResult?>();
   streamController.add(null);
-
-  final tts = ref.watch(textToSpeechServiceProvider);
 
   if (!speechToTextService.isAvailable) {
     print('log: initializing speech to text service');
@@ -49,13 +54,51 @@ final speechToTextStreamProvider =
                   print(info.description);
                   print(info.extract);
                   if (info.extract != null) {
-                    tts.speak(info.extract!);
+                    await tts.speak(info.extract!);
                   }
                 }
               }
-            } else if (result.recognizedWords == 'take a picture') {
+            } else if (result.recognizedWords.substring(0, 14) ==
+                'take a picture') {
               appNavigatorKey.currentState?.push(TakePicturePage.route());
-            } else if (result.recognizedWords == 'stop') {
+
+              final image = await cameraController.takePicture();
+
+              final recognisedText = await textDetector.processImage(
+                InputImage.fromFilePath(
+                  image.path,
+                ),
+              );
+
+              final imageLabels = await imageLabeler.processImage(
+                InputImage.fromFilePath(
+                  image.path,
+                ),
+              );
+
+              await tts.speak('The image consists of');
+              await Future.delayed(
+                Duration(
+                  seconds: 2,
+                ),
+              );
+
+              for (var i = 0; i < imageLabels.length; i++) {
+                if (i <= 2) {
+                  print(imageLabels[i].label);
+                  await tts.speak(imageLabels[i].label);
+                }
+              }
+
+              await tts.speak('Reading text in image');
+
+              if (recognisedText.text.trim().isEmpty) {
+                await tts.speak('No text found in picture');
+              }
+              await tts.speak(recognisedText.text.toLowerCase());
+              appNavigatorKey.currentState?.pop();
+            } else if (result.recognizedWords.trim().toLowerCase() == 'stop') {
+              print('log: will stop tts');
               tts.stop();
             }
           }
