@@ -5,7 +5,6 @@ import 'package:optic/models/userData.dart';
 final usersRef = FirebaseFirestore.instance.collection('users');
 
 Future<void> addUser(User user) async {
-  print('log: adding user');
   final documentSnapshot = await usersRef.doc(user.uid).get();
   if (!documentSnapshot.exists) {
     await usersRef.doc(user.uid).set(
@@ -28,8 +27,6 @@ Stream<UserData> userDataStream(String uid) {
   final docSnapshotStream = usersRef.doc(uid).snapshots();
   return docSnapshotStream.map(
     (ds) {
-      print('log: the document snapshot data is: ');
-      print(ds.data());
       return UserData.fromMap(
         ds.data()!,
       );
@@ -39,7 +36,7 @@ Stream<UserData> userDataStream(String uid) {
 
 List<UserData> _userDataListFromQuerySnapshot(QuerySnapshot qs) {
   return qs.docs.map((ds) {
-    return UserData.fromMap(ds.data()!);
+    return UserData.fromMap(ds.data());
   }).toList();
 }
 
