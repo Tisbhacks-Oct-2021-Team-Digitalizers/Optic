@@ -7,6 +7,7 @@ class LoginPage extends ConsumerWidget {
   Widget build(BuildContext context, ScopedReader watch) {
     final authService = watch(authServiceProvider);
     return Scaffold(
+      backgroundColor: Color(0xff71CDC2),
       body: authService.isLoading
           ? Center(
               child: CircularProgressIndicator(),
@@ -15,16 +16,23 @@ class LoginPage extends ConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  ElevatedButton.icon(
-                    onPressed: () async {
-                      final authService = context.read(authServiceProvider);
-                      await authService.signInWithGoogle();
-                    },
-                    icon: Icon(
-                      Icons.person,
-                    ),
-                    label: Text(
-                      'Sign In',
+                  SizedBox(
+                    height: 100,
+                    width: 100,
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        primary: Color(0xff00A6A0),
+                      ),
+                      onPressed: () async {
+                        final authService = context.read(authServiceProvider);
+                        await authService.signInWithGoogle();
+                      },
+                      icon: Icon(
+                        Icons.person,
+                      ),
+                      label: Text(
+                        'Sign In',
+                      ),
                     ),
                   ),
                 ],
